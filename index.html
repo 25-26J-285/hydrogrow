@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HydroGrow · Hydroponic Fodder Production System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-deep:   #1a4010;
+  --green-mid:    #2a7020;
+  --green-bright: #3a9a40;
+  --green-light:  #6ab840;
+  --green-pale:   #c8eaa0;
+  --amber:        #f0a820;
+  --amber-soft:   rgba(255,180,40,0.18);
+  --white:        #ffffff;
+  --off-white:    #f8fdf6;
+  --cream:        #f4f9f0;
+  --text:         #0e1a08;
+  --muted:        #4a6038;
+  --light-muted:  #7a9060;
+  --border:       rgba(60,150,40,0.14);
+  --border-mid:   rgba(60,150,40,0.22);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--white);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* ── TYPOGRAPHY ── */
+.font-display  { font-family: 'Cormorant Garamond', Georgia, serif; }
+.font-mono     { font-family: 'Space Mono', monospace; }
+.font-body     { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 3rem;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 0.6rem; text-decoration: none;
+}
+.nav-logo-mark {
+  width: 28px; height: 28px;
+  background: var(--green-mid);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.nav-logo-mark::after {
+  content: '';
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 2px; height: 14px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 1px;
+}
+.nav-logo-mark::before {
+  content: '';
+  position: absolute; bottom: 11px; left: 50%; transform: translateX(-50%);
+  width: 12px; height: 8px;
+  background: transparent;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid rgba(255,255,255,0.7);
+  border-radius: 1px;
+}
+.nav-logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem; font-weight: 600;
+  color: var(--green-deep); letter-spacing: -0.01em;
+}
+.nav-logo-text em { font-style: italic; color: var(--green-bright); }
+nav ul { list-style: none; display: flex; gap: 2rem; }
+nav ul a {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.12rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  text-decoration: none; transition: color 0.2s;
+}
+nav ul a:hover { color: var(--green-mid); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+  background: var(--white);
+}
+
+/* LED grow bar at top */
+.hero-led-bar {
+  position: absolute; top: 0; left: 10%; right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255,180,40,0.5), #ffb820, rgba(255,180,40,0.5), transparent);
+  box-shadow: 0 0 30px rgba(255,180,40,0.35), 0 0 60px rgba(255,180,40,0.12);
+}
+.hero-led-glow {
+  position: absolute; top: -80px; left: 0; right: 0; height: 380px;
+  background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(255,200,60,0.13) 0%, rgba(255,160,40,0.04) 55%, transparent 75%);
+  pointer-events: none;
+}
+/* Secondary green glow bottom-left */
+.hero-green-glow {
+  position: absolute; bottom: -40px; left: -60px;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(60,154,64,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Rice plants illustration */
+.hero-plants {
+  position: absolute; bottom: 0; right: 0; width: 55%; height: 100%;
+  pointer-events: none;
+}
+
+/* Ground tray */
+.hero-tray {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 130px;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  width: 100%; padding: 0 3rem 5.5rem;
+  display: block;
+  max-width: 760px; margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 1.12rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(160,110,10,0.95);
+  background: rgba(255,180,40,0.08);
+  border: 1px solid rgba(255,180,40,0.25);
+  padding: 0.28rem 0.9rem; border-radius: 20px;
+  margin-bottom: 1.5rem;
+}
+.badge-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green-bright);
+  animation: pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.6)} }
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 600; line-height: 0.97;
+  letter-spacing: -0.02em; color: var(--text);
+  margin-bottom: 0.6rem;
+}
+.hero h1 em { font-style: italic; color: var(--green-mid); font-weight: 300; }
+
+.hero-sub {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.1rem; font-weight: 400;
+  color: #3a4a28; max-width: 480px;
+  margin: 1.2rem 0 2.2rem; line-height: 1.85;
+}
+
+.hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-primary {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.85rem 2rem;
+  background: var(--green-mid); color: #fff;
+  border: none; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  transition: all 0.25s; cursor: pointer;
+}
+.btn-primary:hover { background: var(--green-deep); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(42,112,32,0.25); }
+.btn-outline {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.85rem 2rem;
+  background: transparent; color: var(--green-mid);
+  border: 1px solid var(--border-mid);
+  text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+  transition: all 0.25s; cursor: pointer;
+}
+.btn-outline:hover { border-color: var(--green-mid); background: rgba(42,112,32,0.05); transform: translateY(-2px); }
+
+/* Sensor panel */
+.hero-sensor-panel {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 40px rgba(60,150,40,0.08), 0 0 0 1px rgba(255,180,40,0.08);
+}
+.sensor-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(42,112,32,0.03);
+}
+.sensor-header-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #4a6038;
+}
+.sensor-live {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; color: var(--green-mid); letter-spacing: 0.08em; font-weight: 700;
+}
+.live-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--green-bright);
+  animation: pulse 2s infinite;
+}
+.sensor-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+.sensor-cell {
+  padding: 1.1rem 1.2rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.sensor-cell:nth-child(even) { border-right: none; }
+.sensor-cell:nth-last-child(-n+2) { border-bottom: none; }
+.sensor-icon { font-size: 1rem; margin-bottom: 0.3rem; }
+.sensor-val {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.9rem; font-weight: 700;
+  color: #1a4010; line-height: 1;
+}
+.sensor-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #4a6038; margin-top: 0.2rem;
+}
+.sensor-footer {
+  padding: 0.7rem 1.2rem;
+  border-top: 1px solid var(--border);
+  background: rgba(255,180,40,0.04);
+  display: flex; align-items: center; gap: 6px;
+}
+.sensor-footer-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem; color: rgba(140,100,10,0.9); letter-spacing: 0.06em;
+}
+
+/* ── COMMON SECTION ── */
+.section { position: relative; z-index: 1; }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 3rem; }
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #2a7020; margin-bottom: 0.8rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.eyebrow::before { content: ''; display: block; width: 18px; height: 1px; background: var(--green-bright); }
+.sec-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
+  font-weight: 600; letter-spacing: -0.02em;
+  color: var(--text); line-height: 1.1; margin-bottom: 0.9rem;
+}
+.sec-title em { font-style: italic; color: var(--green-mid); font-weight: 300; }
+.sec-desc {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.1rem; font-weight: 400;
+  color: #3a4a28; line-height: 1.85; max-width: 540px;
+}
+
+/* ── LED DIVIDER ── */
+.led-divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border-mid) 20%, var(--border-mid) 80%, transparent 100%);
+  position: relative;
+}
+.led-divider::after {
+  content: '';
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  width: 60px; height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255,180,40,0.5), transparent);
+}
+
+/* ── ABSTRACT ── */
+#abstract { padding: 7rem 0; background: var(--white); }
+.abstract-layout {
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: 5rem; align-items: start;
+}
+.crisis-card {
+  background: rgba(255,180,40,0.05);
+  border: 1px solid rgba(255,180,40,0.22);
+  border-left: 3px solid var(--amber);
+  padding: 1.8rem 2rem;
+  margin-bottom: 2.2rem;
+}
+.crisis-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(160,100,10,0.95); margin-bottom: 0.7rem;
+}
+.crisis-card p { font-size: 1.12rem; color: var(--text); line-height: 1.8; font-weight: 400; }
+.crisis-card strong { color: #b85a00; font-weight: 600; }
+.abstract-body { font-size: 1rem; color: #2a3a18; line-height: 1.95; font-weight: 400; }
+.abstract-body p + p { margin-top: 1.2rem; }
+.abstract-body strong { color: var(--green-mid); font-weight: 600; }
+.keywords { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 2rem; }
+.kw {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.04em;
+  padding: 0.3rem 0.8rem;
+  background: rgba(58,154,64,0.07);
+  border: 1px solid rgba(58,154,64,0.2);
+  color: #1e6018;
+}
+
+/* System table */
+.sys-table {
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.sys-table-head {
+  background: var(--green-mid); padding: 1.1rem 1.6rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.sys-table-head h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase; color: #fff;
+}
+.sys-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.85rem 1.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.sys-row:last-child { border-bottom: none; }
+.sys-row:nth-child(even) { background: rgba(58,154,64,0.025); }
+.sys-key { font-size: 1.1rem; color: #2a3a1a; font-weight: 400; }
+.sys-val { font-family: 'Space Mono', monospace; font-size: 1rem; color: #1e6018; font-weight: 700; text-align: right; }
+.pub-block {
+  margin-top: 1.4rem; padding: 1.4rem 1.6rem;
+  background: rgba(58,154,64,0.04);
+  border: 1px solid var(--border); border-top: 2px solid var(--green-bright);
+}
+.pub-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #1e6018; margin-bottom: 0.6rem;
+}
+.pub-block p { font-size: 1.1rem; font-style: italic; color: #3a4a28; line-height: 1.75; font-weight: 400; }
+
+/* ── COMPONENTS ── */
+#components {
+  padding: 7rem 0;
+  background: var(--cream);
+  position: relative; overflow: hidden;
+}
+#components::before {
+  content: '';
+  position: absolute; top: -40px; right: -80px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,180,40,0.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+.comp-intro {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 3rem; margin-bottom: 3.5rem; align-items: end;
+}
+.comp-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+}
+.comp-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 2.2rem;
+  position: relative; overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.comp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(42,112,32,0.1);
+  border-color: var(--border-mid);
+}
+.comp-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s;
+}
+.comp-card:hover::before { transform: scaleX(1); }
+.comp-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem; font-weight: 300;
+  color: rgba(42,112,32,0.1); line-height: 1; margin-bottom: 0.4rem;
+}
+.comp-pill {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #1e6018;
+  background: rgba(58,154,64,0.08);
+  border: 1px solid rgba(58,154,64,0.2);
+  padding: 0.25rem 0.7rem; margin-bottom: 0.8rem;
+}
+.comp-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.22rem; font-weight: 600;
+  color: var(--text); margin-bottom: 0.8rem; line-height: 1.25;
+}
+.comp-body { font-size: 1.1rem; color: #3a4a28; line-height: 1.85; font-weight: 400; }
+.comp-metric {
+  margin-top: 1.4rem; padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: baseline; gap: 0.5rem;
+}
+.comp-val {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.7rem; font-weight: 700; color: #1e6018;
+}
+.comp-mlabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.07em; text-transform: uppercase;
+  color: #4a6038;
+}
+
+/* ── ARCHITECTURE ── */
+#architecture { padding: 7rem 0; background: var(--white); }
+.arch-wrap {
+  display: grid; grid-template-columns: 220px 1fr;
+  border: 1px solid var(--border); overflow: hidden; margin-top: 3rem;
+}
+.arch-sidebar {
+  background: var(--green-deep); padding: 2rem 0;
+}
+.arch-tab {
+  padding: 1rem 1.4rem; cursor: pointer;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.2s;
+}
+.arch-tab:last-child { border-bottom: none; }
+.arch-tab.active { background: rgba(255,255,255,0.1); border-left-color: var(--amber); }
+.arch-tab-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(200,234,160,0.7); margin-bottom: 0.15rem;
+}
+.arch-tab-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 600; color: rgba(200,234,160,0.95);
+}
+.arch-panels { background: var(--white); }
+.arch-panel { display: none; padding: 2.8rem; animation: slideIn 0.3s ease; }
+.arch-panel.active { display: block; }
+@keyframes slideIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:none} }
+.arch-panel-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 600; color: var(--text); margin-bottom: 0.6rem;
+}
+.arch-panel-desc {
+  font-size: 1.12rem; color: #3a4a28; line-height: 1.9;
+  margin-bottom: 1.8rem; font-weight: 400; font-style: italic;
+}
+.arch-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.arch-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; padding: 0.3rem 0.8rem;
+  background: rgba(58,154,64,0.07);
+  border: 1px solid var(--border);
+  color: #1e6018; letter-spacing: 0.03em;
+}
+
+/* ── PERFORMANCE ── */
+#performance {
+  padding: 7rem 0;
+  background: var(--cream);
+}
+.perf-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; margin-top: 4rem; align-items: start;
+}
+.perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.metric-card {
+  background: var(--white); border: 1px solid var(--border);
+  padding: 1.8rem 1.5rem; text-align: center;
+  position: relative; overflow: hidden; transition: transform 0.3s;
+}
+.metric-card:hover { transform: translateY(-3px); }
+.metric-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+}
+.m-val {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.4rem; font-weight: 700; color: #1e6018; line-height: 1; margin-bottom: 0.4rem;
+}
+.m-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(140,90,0,0.9); margin-bottom: 0.5rem;
+}
+.m-desc { font-size: 1.1rem; color: #3a4a28; line-height: 1.6; font-weight: 400; }
+
+/* Disease bar chart */
+.disease-panel {
+  background: var(--white); border: 1px solid var(--border); padding: 2.2rem;
+}
+.disease-panel h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.22rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem;
+}
+.disease-panel p { font-size: 1.08rem; color: #3a4a28; font-style: italic; margin-bottom: 1.8rem; font-weight: 400; }
+.bar-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+.bar-label { font-family: 'Space Mono', monospace; font-size: 0.95rem; color: #3a4a28; width: 150px; flex-shrink: 0; }
+.bar-track {
+  flex: 1; height: 5px; background: rgba(58,154,64,0.1); position: relative; overflow: hidden;
+}
+.bar-fill {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+  width: 0; transition: width 1.3s ease;
+}
+.bar-pct { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; color: #1e6018; font-weight: 700; width: 36px; text-align: right; }
+
+/* ── TEAM ── */
+#team { padding: 7rem 0; background: var(--white); }
+.team-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1.2rem; margin-top: 3rem; margin-bottom: 1.4rem;
+}
+.team-card {
+  background: var(--white); border: 1px solid var(--border);
+  padding: 1.8rem 1.4rem; transition: all 0.3s; position: relative;
+}
+.team-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(42,112,32,0.1); border-color: var(--border-mid); }
+.team-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green-bright), transparent);
+  transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+}
+.team-card:hover::after { transform: scaleX(1); }
+.team-avatar {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, var(--green-mid), var(--green-bright));
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 700; color: #fff;
+  margin-bottom: 1.1rem;
+}
+.team-name { font-family: 'Cormorant Garamond', serif; font-size: 1.08rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+.team-id { font-family: 'Space Mono', monospace; font-size: 0.95rem; color: rgba(140,90,0,0.85); letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+.team-focus { font-size: 1.1rem; color: #3a4a28; line-height: 1.55; font-style: italic; font-weight: 400; }
+.sup-sep {
+  font-family: 'Space Mono', monospace; font-size: 0.95rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: #4a6038;
+  display: flex; align-items: center; gap: 0.75rem; margin: 2rem 0 1rem;
+}
+.sup-sep::before,.sup-sep::after { content:''; flex:1; height:1px; background:var(--border); }
+.sup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.sup-card {
+  background: rgba(58,154,64,0.04); border: 1px solid var(--border);
+  padding: 1.4rem 1.6rem; display: flex; align-items: center; gap: 1.1rem;
+}
+.sup-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--green-mid), var(--green-bright));
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.sup-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+.sup-role { font-size: 0.84rem; color: #3a4a28; font-style: italic; font-weight: 400; }
+
+/* ── DOWNLOADS ── */
+#downloads {
+  padding: 7rem 0;
+  background: var(--green-deep);
+  position: relative; overflow: hidden;
+}
+#downloads::before {
+  content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+  width: 100%; height: 120px;
+  background: linear-gradient(90deg, transparent, rgba(255,180,40,0.08), transparent);
+}
+/* LED bar top of downloads */
+#downloads::after {
+  content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,180,40,0.5), #ffb820, rgba(255,180,40,0.5), transparent);
+  box-shadow: 0 0 20px rgba(255,180,40,0.25);
+}
+#downloads .sec-title { color: var(--green-pale); }
+#downloads .sec-title em { color: var(--green-light); }
+#downloads .sec-desc { color: rgba(200,234,160,0.55); }
+#downloads .eyebrow { color: var(--green-light); }
+#downloads .eyebrow::before { background: var(--green-light); }
+.dl-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1.4rem; margin-top: 3rem; position: relative; z-index: 1;
+}
+.dl-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(106,184,64,0.2);
+  padding: 2.2rem 1.8rem;
+  display: flex; flex-direction: column; gap: 1.1rem;
+  text-decoration: none; transition: all 0.3s; position: relative; overflow: hidden;
+}
+.dl-card:hover { background: rgba(58,154,64,0.1); border-color: rgba(106,184,64,0.4); transform: translateY(-4px); }
+.dl-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--green-bright), var(--green-light));
+  transform: scaleX(0); transform-origin: left; transition: transform 0.4s;
+}
+.dl-card:hover::before { transform: scaleX(1); }
+.dl-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.dl-badge.pdf { color: rgba(220,150,50,0.95); }
+.dl-badge.pptx { color: rgba(80,170,40,0.95); }
+.dl-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.12rem; font-weight: 600;
+  color: var(--green-pale); line-height: 1.4; flex: 1;
+}
+.dl-desc { font-size: 1.08rem; color: rgba(200,234,160,0.7); line-height: 1.7; font-weight: 400; }
+.dl-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 1.1rem; border-top: 1px solid rgba(106,184,64,0.14);
+}
+.dl-size { font-family: 'Space Mono', monospace; font-size: 0.95rem; color: rgba(200,234,160,0.6); }
+.dl-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.4rem 0.9rem;
+  background: rgba(58,154,64,0.15);
+  border: 1px solid rgba(106,184,64,0.3);
+  color: var(--green-light); text-decoration: none; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.dl-btn:hover { background: rgba(58,154,64,0.28); border-color: var(--green-light); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--text); padding: 2.5rem 3rem;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 2rem;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem; font-weight: 600; color: var(--green-light);
+}
+.footer-brand em { font-style: italic; color: var(--amber); font-weight: 300; }
+.footer-mid {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; color: rgba(200,234,160,0.55);
+  text-align: center; letter-spacing: 0.05em; line-height: 2;
+}
+.footer-right {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; color: rgba(200,234,160,0.5);
+  text-align: right; line-height: 2;
+}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+.stagger > * { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.stagger.visible > *:nth-child(1){opacity:1;transform:none;transition-delay:0.05s}
+.stagger.visible > *:nth-child(2){opacity:1;transform:none;transition-delay:0.13s}
+.stagger.visible > *:nth-child(3){opacity:1;transform:none;transition-delay:0.21s}
+.stagger.visible > *:nth-child(4){opacity:1;transform:none;transition-delay:0.29s}
+.stagger.visible > *:nth-child(5){opacity:1;transform:none;transition-delay:0.37s}
+.stagger.visible > *:nth-child(6){opacity:1;transform:none;transition-delay:0.45s}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 920px) {
+  nav ul { display: none; }
+  nav { padding: 1rem 1.5rem; }
+  .hero-content { grid-template-columns: 1fr; padding: 0 1.5rem 5rem; }
+  .container { padding: 0 1.5rem; }
+  .abstract-layout,.comp-intro,.perf-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .comp-grid,.perf-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr 1fr; }
+  .sup-grid { grid-template-columns: 1fr; }
+  .arch-wrap { grid-template-columns: 1fr; }
+  .arch-sidebar { display: flex; flex-wrap: wrap; padding: 0.8rem; gap: 0.3rem; }
+  .arch-tab { border-left: none; border-bottom: 2px solid transparent; padding: 0.5rem 0.9rem; flex: 1; min-width: 90px; }
+  .arch-tab.active { border-bottom-color: var(--amber); background: rgba(255,255,255,0.08); }
+  .dl-grid { grid-template-columns: 1fr; }
+  footer { grid-template-columns: 1fr; text-align: center; }
+  .footer-right { text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark"></div>
+    <span class="nav-logo-text">Hydro<em>Grow</em></span>
+  </a>
+  <ul>
+    <li><a href="#abstract">Overview</a></li>
+    <li><a href="#components">System</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#performance">Results</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#downloads">Downloads</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-led-bar"></div>
+  <div class="hero-led-glow"></div>
+  <div class="hero-green-glow"></div>
+
+  <!-- Rice plants + tray SVG scene -->
+  <svg class="hero-plants" viewBox="0 0 600 700" fill="none" preserveAspectRatio="xMaxYMax meet">
+    <!-- Back plants (lighter) -->
+    <g opacity="0.10">
+      <path d="M480 700 C477 640 465 570 478 500 C491 430 474 365 480 300 C484 255 479 220 480 180" stroke="#3a7820" stroke-width="3" stroke-linecap="round"/>
+      <path d="M480 440 C455 415 422 406 398 388" stroke="#3a7820" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M480 360 C506 340 530 332 552 318" stroke="#3a7820" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M480 500 C502 482 524 476 544 462" stroke="#3a7820" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M479 280 C462 262 444 254 428 240" stroke="#3a7820" stroke-width="1.4" stroke-linecap="round"/>
+    </g>
+    <!-- Main center plant -->
+    <g opacity="0.22">
+      <path d="M360 700 C357 635 344 560 360 490 C376 420 356 350 362 282 C366 230 360 192 362 155 C363 125 360 108 360 88" stroke="#2a7020" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M360 490 C328 462 290 450 262 428" stroke="#2a7020" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M360 420 C328 406 296 402 270 388" stroke="#2a7020" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <path d="M361 380 C394 358 424 348 450 332" stroke="#3a8a28" stroke-width="2" stroke-linecap="round"/>
+      <path d="M360 310 C328 290 296 280 268 265" stroke="#2a7020" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M362 238 C392 220 422 212 448 198" stroke="#3a8a28" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M360 180 C338 162 314 154 292 140" stroke="#2a7020" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- Grain head -->
+      <ellipse cx="352" cy="72" rx="5" ry="10" fill="#2a7020" opacity="0.6"/>
+      <ellipse cx="360" cy="68" rx="5" ry="11" fill="#2a7020" opacity="0.7"/>
+      <ellipse cx="368" cy="72" rx="5" ry="10" fill="#2a7020" opacity="0.6"/>
+      <ellipse cx="356" cy="60" rx="4" ry="9" fill="#3a8a28" opacity="0.5"/>
+      <ellipse cx="364" cy="58" rx="4" ry="9" fill="#3a8a28" opacity="0.5"/>
+    </g>
+    <!-- Right secondary plant -->
+    <g opacity="0.15">
+      <path d="M530 700 C528 650 520 595 530 545 C540 495 527 445 530 390 C532 350 529 322 530 295" stroke="#3a8020" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M530 500 C510 482 488 475 470 462" stroke="#3a8020" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M530 440 C550 425 568 418 584 406" stroke="#3a8020" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M530 380 C508 364 486 356 466 343" stroke="#3a8020" stroke-width="1.4" stroke-linecap="round"/>
+    </g>
+    <!-- Roots hint at bottom -->
+    <g opacity="0.18">
+      <path d="M360 700 C340 714 318 720 295 716" stroke="#2a5010" stroke-width="2" stroke-linecap="round"/>
+      <path d="M360 700 C380 716 402 722 424 718" stroke="#2a5010" stroke-width="2" stroke-linecap="round"/>
+      <path d="M360 700 C350 724 334 732 315 730" stroke="#2a5010" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M360 700 C370 726 386 734 405 732" stroke="#2a5010" stroke-width="1.4" stroke-linecap="round"/>
+    </g>
+    <!-- Dew / water droplets -->
+    <circle cx="264" cy="430" r="5" fill="rgba(100,180,220,0.35)" opacity="0.8"/>
+    <circle cx="452" cy="334" r="4" fill="rgba(100,180,220,0.3)" opacity="0.7"/>
+    <circle cx="293" cy="267" r="3.5" fill="rgba(100,180,220,0.3)" opacity="0.7"/>
+    <circle cx="448" cy="200" r="3" fill="rgba(100,180,220,0.25)" opacity="0.6"/>
+  </svg>
+
+  <!-- Hydroponic tray at base of hero -->
+  <svg class="hero-tray" viewBox="0 0 1440 130" fill="none" preserveAspectRatio="xMidYMax meet">
+    <!-- Water channel -->
+    <rect x="0" y="70" width="1440" height="60" fill="rgba(40,120,220,0.04)"/>
+    <!-- Tray channel lines -->
+    <path d="M0 72 Q360 68 720 72 Q1080 76 1440 72" stroke="rgba(58,154,64,0.15)" stroke-width="1"/>
+    <path d="M0 80 Q360 76 720 80 Q1080 84 1440 80" stroke="rgba(58,154,64,0.08)" stroke-width="0.8"/>
+    <!-- Grow slots -->
+    {[80,180,290,400,510,620,730,840,950,1060,1170,1290,1390].map((x) => (
+      `<rect x="${x}" y="70" width="20" height="28" rx="2" fill="rgba(42,112,32,0.08)" stroke="rgba(42,112,32,0.2)" stroke-width="0.8"/>`
+    )).join('')}
+    <!-- Small sprouting plants in slots -->
+    {[80,180,290,400,510,620,730,840,950,1060,1170,1290,1390].map((x, i) => (
+      `<g>
+        <line x1="${x+10}" y1="70" x2="${x+10}" y2="${50 - (i%3)*6}" stroke="rgba(42,112,32,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M${x+10} ${62-(i%3)*3} C${x+2} ${55-(i%3)*3} ${x-5} ${53-(i%3)*3} ${x-8} ${56-(i%3)*3}" stroke="rgba(42,112,32,0.28)" stroke-width="1" fill="none"/>
+        <path d="M${x+10} ${58-(i%3)*3} C${x+18} ${51-(i%3)*3} ${x+25} ${49-(i%3)*3} ${x+28} ${52-(i%3)*3}" stroke="rgba(42,112,32,0.28)" stroke-width="1" fill="none"/>
+      </g>`
+    )).join('')}
+    <!-- Roots in water -->
+    <path d="M0 90 Q240 86 480 90 Q720 94 960 90 Q1200 86 1440 90" stroke="rgba(60,154,64,0.07)" stroke-width="1.5"/>
+  </svg>
+
+  <div class="hero-content">
+    <div>
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Research · SLIIT · 2025–26 · 25-26J-285
+      </div>
+      <h1>
+        <em>Hydroponic</em><br>
+        Fodder<br>
+        Production
+      </h1>
+      <p class="hero-sub">IoT sensors, deep learning &amp; machine learning. Growing resilience for Sri Lanka's post-disaster agriculture.</p>
+      <div class="hero-cta">
+        <a href="#abstract" class="btn-primary">Explore Research ↓</a>
+        <a href="#downloads" class="btn-outline">Downloads</a>
+      </div>
+    </div>
+
+
+  </div>
+</section>
+
+<div class="led-divider"></div>
+
+<!-- ── ABSTRACT ── -->
+<section id="abstract" class="section">
+  <div class="container" style="padding-top:7rem;padding-bottom:7rem;">
+    <div class="abstract-layout">
+      <div class="reveal">
+        <div class="eyebrow">Overview</div>
+        <h2 class="sec-title">The Crisis &amp;<br><em>Our Solution</em></h2>
+        <div class="crisis-card">
+          <div class="crisis-label">⚠ National Agricultural Emergency</div>
+          <p>Sri Lanka's livestock sector faces a severe dual crisis: feed costs have risen over <strong>355% since 2019</strong>, and Cyclone Ditwah in 2025 devastated more than <strong>108,000 hectares</strong> of paddy rice, severing the supply chain for animal feed entirely.</p>
+        </div>
+        <div class="abstract-body">
+          <p>In this context, hydroponic fodder production (the soilless cultivation of sprouted grains) emerges not just as an alternative, but as a necessity. It offers a land- and water-efficient method to produce high-quality green feed within controlled indoor environments, completely decoupled from soil quality and seasonal rainfall.</p>
+          <p>This project presents an integrated system using IoT hardware, deep learning, and machine learning. A unique scientific contribution is the <strong>Poaceae Transfer Learning hypothesis</strong>: exploiting botanical taxonomic similarity between rice, maize, and sorghum to train disease detection models on large rice datasets and transfer them to fodder crops.</p>
+          <p>The system achieved a peak mAP@0.5 of <strong>0.843</strong> in disease detection and validated reliable sensor telemetry at 2-second cadence with hardware crash-detection across extended trials.</p>
+        </div>
+        <div class="keywords">
+          <span class="kw">Hydroponic Fodder</span><span class="kw">IoT</span><span class="kw">YOLOv11s</span><span class="kw">Poaceae TL</span><span class="kw">Disease Detection</span><span class="kw">Growth Stage</span><span class="kw">Seed Quality</span><span class="kw">LSTM</span><span class="kw">Energy Optimization</span><span class="kw">Sri Lanka</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="sys-table">
+          <div class="sys-table-head">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#c4d98a" stroke-width="1.2"/><path d="M6.5 3 L6.5 6.5 L9 9" stroke="#c4d98a" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <h3>System at a Glance</h3>
+          </div>
+          <div class="sys-row"><span class="sys-key">Hardware</span><span class="sys-val">Dual ESP32 + ESP32-CAM</span></div>
+          <div class="sys-row"><span class="sys-key">Vision Model</span><span class="sys-val">YOLOv11s</span></div>
+          <div class="sys-row"><span class="sys-key">Seed Classifier</span><span class="sys-val">ResNet-50 Multi-Task</span></div>
+          <div class="sys-row"><span class="sys-key">Energy Model</span><span class="sys-val">Stacked LSTM</span></div>
+          <div class="sys-row"><span class="sys-key">Communication</span><span class="sys-val">MQTT / HTTP / TLS</span></div>
+          <div class="sys-row"><span class="sys-key">Backend</span><span class="sys-val">Python FastAPI</span></div>
+          <div class="sys-row"><span class="sys-key">Dashboard</span><span class="sys-val">React Web + React Native</span></div>
+          <div class="sys-row"><span class="sys-key">Disease Classes</span><span class="sys-val">7 Pathological Conditions</span></div>
+          <div class="sys-row"><span class="sys-key">Training Dataset</span><span class="sys-val">19,000 Images</span></div>
+          <div class="sys-row"><span class="sys-key">Peak mAP@0.5</span><span class="sys-val">0.843</span></div>
+        </div>
+        <div class="pub-block">
+          <div class="pub-label">Publication</div>
+          <p>"Hydroponic Fodder Production System Using IoT Sensors, Deep Learning, and Machine Learning for Sri Lanka" · Faculty of Computing, SLIIT, Malabe, 2025–26</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="led-divider"></div>
+
+<!-- ── COMPONENTS ── -->
+<section id="components" class="section">
+  <div class="container" style="padding-top:7rem;padding-bottom:7rem;">
+    <div class="comp-intro reveal">
+      <div>
+        <div class="eyebrow">Intelligent Modules</div>
+        <h2 class="sec-title">Four <em>AI</em> Components</h2>
+      </div>
+      <p class="sec-desc">Each module addresses a distinct challenge, from assessing flood-damaged seeds to minimising energy waste in post-disaster conditions.</p>
+    </div>
+    <div class="comp-grid stagger">
+      <div class="comp-card">
+        <div class="comp-num">01</div>
+        <div class="comp-pill">ResNet-50 · Multi-Task Learning</div>
+        <div class="comp-title">Seed Identification &amp; Quality Analysis</div>
+        <div class="comp-body">A multi-task transfer-learning architecture based on ResNet-50 performs simultaneous rice type classification and quality analysis from a single RGB image at 384×384px. Enables safe use of flood-damaged seed stock without expensive hyperspectral hardware.</div>
+        <div class="comp-metric"><span class="comp-val">&gt;92%</span><span class="comp-mlabel">Classification Accuracy Target</span></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-num">02</div>
+        <div class="comp-pill">YOLOv11s · Poaceae Transfer Learning</div>
+        <div class="comp-title">Multi-Modal Disease Detection</div>
+        <div class="comp-body">Fuses YOLOv11s visual features with real-time IoT sensor telemetry to detect 7 pathological conditions. Trained on 19,000 rice leaf images and transferred to maize and sorghum via the novel Poaceae Transfer Learning hypothesis. Trained for 600 epochs.</div>
+        <div class="comp-metric"><span class="comp-val">0.843</span><span class="comp-mlabel">Peak mAP@0.5 Achieved</span></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-num">03</div>
+        <div class="comp-pill">YOLOv11s · C2PSA Attention · ESP32-CAM</div>
+        <div class="comp-title">Plant Growth Stage Detection</div>
+        <div class="comp-body">Identifies four key growth phases: Seed, Germination, Sprout, and Seedling, from live ESP32-CAM footage using C2PSA spatial attention. Triggers phase-specific actuator adjustments and harvest-window alerts. The optimal protein window spans only 12–18 hours in a 7-day growing cycle.</div>
+        <div class="comp-metric"><span class="comp-val">80–88%</span><span class="comp-mlabel">Overall Accuracy Expected</span></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-num">04</div>
+        <div class="comp-pill">LSTM · PZEM-004T · Threshold Control</div>
+        <div class="comp-title">Energy Prediction &amp; Actuator Control</div>
+        <div class="comp-body">A stacked LSTM model (64→32 units) trained on live PZEM-004T sensor telemetry predicts energy demand over 24-timestep sliding windows. Threshold-based scheduling staggers pump activation to cut peak current draw across complete growing cycles.</div>
+        <div class="comp-metric"><span class="comp-val">18–25%</span><span class="comp-mlabel">Target Energy Reduction</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="led-divider"></div>
+
+<!-- ── ARCHITECTURE ── -->
+<section id="architecture" class="section">
+  <div class="container" style="padding-top:7rem;padding-bottom:7rem;">
+    <div class="reveal">
+      <div class="eyebrow">System Architecture</div>
+      <h2 class="sec-title">Five <em>Layers</em></h2>
+      <p class="sec-desc">An IoT gateway architecture on commodity microcontroller hardware with production-grade safety mechanisms.</p>
+    </div>
+    <div class="arch-wrap reveal">
+      <div class="arch-sidebar">
+        <div class="arch-tab active" onclick="showPanel(0)"><div class="arch-tab-num">Layer 01</div><div class="arch-tab-name">Input</div></div>
+        <div class="arch-tab" onclick="showPanel(1)"><div class="arch-tab-num">Layer 02</div><div class="arch-tab-name">Communication</div></div>
+        <div class="arch-tab" onclick="showPanel(2)"><div class="arch-tab-num">Layer 03</div><div class="arch-tab-name">Cloud Backend</div></div>
+        <div class="arch-tab" onclick="showPanel(3)"><div class="arch-tab-num">Layer 04</div><div class="arch-tab-name">Control</div></div>
+        <div class="arch-tab" onclick="showPanel(4)"><div class="arch-tab-num">Layer 05</div><div class="arch-tab-name">Interface</div></div>
+      </div>
+      <div class="arch-panels">
+        <div class="arch-panel active">
+          <div class="arch-panel-title">Sensor Input Layer</div>
+          <div class="arch-panel-desc">A heterogeneous sensor network collects environmental telemetry at 2-second cadence. The ESP32 Manager handles stationary sensor polling and actuator control; the ESP32-CAM on a motorized CNC gantry rail scans crops continuously.</div>
+          <div class="arch-tags">
+            <span class="arch-tag">DHT22 Temp/Humidity</span><span class="arch-tag">pH Probe</span><span class="arch-tag">EC Sensor</span><span class="arch-tag">CO₂ Sensor</span><span class="arch-tag">PZEM-004T Power</span><span class="arch-tag">ESP32-CAM</span><span class="arch-tag">Water Level</span><span class="arch-tag">Soil Moisture</span>
+          </div>
+        </div>
+        <div class="arch-panel">
+          <div class="arch-panel-title">Communication Layer</div>
+          <div class="arch-panel-desc">Secure MQTT protocol streams sensor telemetry in real time. HTTP POST carries image frames from ESP32-CAM to the FastAPI backend. All communications are TLS-encrypted over the local 2.4GHz Wi-Fi star network.</div>
+          <div class="arch-tags">
+            <span class="arch-tag">MQTT</span><span class="arch-tag">HTTP POST</span><span class="arch-tag">TLS Encryption</span><span class="arch-tag">WebSocket</span><span class="arch-tag">Wi-Fi 2.4GHz</span><span class="arch-tag">Service Discovery</span>
+          </div>
+        </div>
+        <div class="arch-panel">
+          <div class="arch-panel-title">Cloud Backend Layer</div>
+          <div class="arch-panel-desc">The Python FastAPI server hosts all four AI modules. Hardware safe-mode crash detection and atomic I²C relay de-energization are implemented at firmware level. Safety mechanisms absent from most comparable research prototypes.</div>
+          <div class="arch-tags">
+            <span class="arch-tag">Python FastAPI</span><span class="arch-tag">YOLOv11s</span><span class="arch-tag">ResNet-50</span><span class="arch-tag">Stacked LSTM</span><span class="arch-tag">Label Studio</span><span class="arch-tag">Hardware Crashdetect</span>
+          </div>
+        </div>
+        <div class="arch-panel">
+          <div class="arch-panel-title">Actuator Control Layer</div>
+          <div class="arch-panel-desc">Relay-controlled actuators execute AI commands dispatched as MQTT JSON payloads. The ESP32 firmware switches relays through an optocoupler board. Staggered pump activation reduces instantaneous current draw during high-load periods.</div>
+          <div class="arch-tags">
+            <span class="arch-tag">Water Pumps</span><span class="arch-tag">LED Grow Lights</span><span class="arch-tag">Ventilation Fans</span><span class="arch-tag">Misting Units</span><span class="arch-tag">Peristaltic Pumps</span><span class="arch-tag">Optocoupler Relay</span>
+          </div>
+        </div>
+        <div class="arch-panel">
+          <div class="arch-panel-title">User Interface Layer</div>
+          <div class="arch-panel-desc">A React web and React Native mobile application provides real-time sensor dashboards, AI-generated disease alerts, growth stage notifications with harvest-window countdowns, energy analytics panels, and manual actuator override controls.</div>
+          <div class="arch-tags">
+            <span class="arch-tag">React.js</span><span class="arch-tag">React Native</span><span class="arch-tag">Real-time Dashboard</span><span class="arch-tag">Disease Alerts</span><span class="arch-tag">Manual Override</span><span class="arch-tag">Energy Analytics</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="led-divider"></div>
+
+<!-- ── PERFORMANCE ── -->
+<section id="performance" class="section">
+  <div class="container" style="padding-top:7rem;padding-bottom:7rem;">
+    <div class="reveal">
+      <div class="eyebrow">Results &amp; Targets</div>
+      <h2 class="sec-title">Expected <em>Performance</em></h2>
+    </div>
+    <div class="perf-layout">
+      <div class="perf-grid stagger">
+        <div class="metric-card">
+          <div class="m-name">Seed Accuracy</div>
+          <div class="m-val">&gt;92%</div>
+          <div class="m-desc">ResNet-50 multi-task classification for seed type &amp; quality from RGB images</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-name">mAP@0.5</div>
+          <div class="m-val">0.843</div>
+          <div class="m-desc">YOLOv11s disease detection across 7 Poaceae leaf conditions</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-name">Seedling Recall</div>
+          <div class="m-val">&gt;90%</div>
+          <div class="m-desc">Critical harvest window, never miss the 12–18hr crude protein peak</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-name">Energy Saved</div>
+          <div class="m-val">25%</div>
+          <div class="m-desc">vs. fixed-timer baseline over complete 6–8 day growing cycles</div>
+        </div>
+      </div>
+      <div class="disease-panel reveal">
+        <h3>Disease Detection by Class</h3>
+        <p>7 Poaceae leaf conditions · 19,000 images · Poaceae Transfer Learning</p>
+        <div class="bar-row"><span class="bar-label">Bacterial Leaf Blight</span><div class="bar-track"><div class="bar-fill" data-w="88"></div></div><span class="bar-pct">88%</span></div>
+        <div class="bar-row"><span class="bar-label">Brown Spot</span><div class="bar-track"><div class="bar-fill" data-w="91"></div></div><span class="bar-pct">91%</span></div>
+        <div class="bar-row"><span class="bar-label">Hispa</span><div class="bar-track"><div class="bar-fill" data-w="85"></div></div><span class="bar-pct">85%</span></div>
+        <div class="bar-row"><span class="bar-label">Leaf Blast</span><div class="bar-track"><div class="bar-fill" data-w="84"></div></div><span class="bar-pct">84%</span></div>
+        <div class="bar-row"><span class="bar-label">Leaf Scald</span><div class="bar-track"><div class="bar-fill" data-w="87"></div></div><span class="bar-pct">87%</span></div>
+        <div class="bar-row"><span class="bar-label">Narrow Brown</span><div class="bar-track"><div class="bar-fill" data-w="89"></div></div><span class="bar-pct">89%</span></div>
+        <div class="bar-row"><span class="bar-label">Healthy (Reference)</span><div class="bar-track"><div class="bar-fill" data-w="96"></div></div><span class="bar-pct">96%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="led-divider"></div>
+
+<!-- ── TEAM ── -->
+<section id="team" class="section">
+  <div class="container" style="padding-top:7rem;padding-bottom:7rem;">
+    <div class="reveal">
+      <div class="eyebrow">Researchers</div>
+      <h2 class="sec-title">The <em>Team</em></h2>
+    </div>
+    <div class="team-grid stagger">
+      <div class="team-card">
+        <div class="team-avatar">AI</div>
+        <div class="team-name">Imalka A M T</div>
+        <div class="team-id">IT22138040</div>
+        <div class="team-focus">Multi-Modal Disease Detection · YOLOv11s, Poaceae Transfer Learning, IoT sensor fusion</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">RS</div>
+        <div class="team-name">Rathnayaka H M S S</div>
+        <div class="team-id">IT22277190</div>
+        <div class="team-focus">Plant Growth Stage Detection · YOLOv11s, C2PSA spatial attention, harvest window automation</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">CD</div>
+        <div class="team-name">Chandrasiri D M B L</div>
+        <div class="team-id">IT22082138</div>
+        <div class="team-focus">Seed Identification &amp; Quality Analysis · ResNet-50 multi-task learning, RGB-based flood-damage assessment</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">MH</div>
+        <div class="team-name">Mihiranga H A M</div>
+        <div class="team-id">IT22073396</div>
+        <div class="team-focus">Energy Consumption Prediction &amp; Actuator Control · Stacked LSTM, PZEM-004T, threshold scheduling</div>
+      </div>
+    </div>
+    <div class="sup-sep">Supervisors</div>
+    <div class="sup-grid">
+      <div class="sup-card">
+        <div class="sup-icon">🌱</div>
+        <div>
+          <div class="sup-name">Asst. Prof. Sanvitha Kasthuriarachchi</div>
+          <div class="sup-role">Project Supervisor · Faculty of Computing, SLIIT</div>
+        </div>
+      </div>
+      <div class="sup-card">
+        <div class="sup-icon">🔬</div>
+        <div>
+          <div class="sup-name">Lect. Thisara Shyamalee</div>
+          <div class="sup-role">Co-Supervisor · Faculty of Computing, SLIIT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DOWNLOADS ── -->
+<section id="downloads" class="section">
+  <div class="container" style="padding-top:7rem;padding-bottom:7rem;">
+    <div class="reveal">
+      <div class="eyebrow">Resources</div>
+      <h2 class="sec-title">Project <em>Downloads</em></h2>
+      <p class="sec-desc" style="color:rgba(200,234,160,0.55)">Access the full research documentation, presentation materials, and poster resources.</p>
+    </div>
+    <div class="dl-grid stagger">
+      <a href="Hydroponic_Fodder_Production_System_Using_IoT_Sensors__Deep_Learning__and_Machine_Learning_for_Sri_Lanka.pdf" download class="dl-card">
+        <div class="dl-badge pdf">PDF · Research Paper</div>
+        <div class="dl-title">Full Research Paper: Hydroponic Fodder Production System</div>
+        <div class="dl-desc">Complete methodology, experimental results, Poaceae Transfer Learning hypothesis, and future work. IEEE format.</div>
+        <div class="dl-footer">
+          <span class="dl-size">514 KB</span>
+          <span class="dl-btn">Download ↓</span>
+        </div>
+      </a>
+      <a href="https://docs.google.com/presentation/d/1XlUHk5OTXrjYWHqJ1DPoKSQxBIHFpHmL/edit?usp=sharing&ouid=103050857928711719793&rtpof=true&sd=true" target="_blank" class="dl-card">
+        <div class="dl-badge pptx">PPTX · Presentation 1</div>
+        <div class="dl-title">Progress Presentation 1: System Architecture &amp; Initial Results</div>
+        <div class="dl-desc">First progress presentation covering system design, IoT gateway architecture, and early AI module development.</div>
+        <div class="dl-footer">
+          <span class="dl-size">Google Drive ↗</span>
+          <span class="dl-btn">Open &amp; Download ↓</span>
+        </div>
+      </a>
+      <a href="https://docs.google.com/presentation/d/1m1aps7dYWvwPkSAYAhQ9B-ouw_lSfY9l/edit?usp=sharing&ouid=103050857928711719793&rtpof=true&sd=true" target="_blank" class="dl-card">
+        <div class="dl-badge pptx">PPTX · Presentation 2</div>
+        <div class="dl-title">Progress Presentation 2: Model Results &amp; Evaluation</div>
+        <div class="dl-desc">Second progress presentation covering trained model metrics, disease detection results, growth stage classification, and energy optimization findings.</div>
+        <div class="dl-footer">
+          <span class="dl-size">Google Drive ↗</span>
+          <span class="dl-btn">Open &amp; Download ↓</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div>
+    <div class="footer-brand">Hydro<em>Grow</em></div>
+  </div>
+  <div class="footer-mid">
+    Faculty of Computing · SLIIT · Malabe<br>
+    Research Group 25-26J-285 · 2025–26<br>
+    Hydroponic Fodder Production System
+  </div>
+  <div class="footer-right">
+    YOLOv11s · ResNet-50 · LSTM<br>
+    ESP32 · MQTT · FastAPI<br>
+    React · React Native
+  </div>
+</footer>
+
+<script>
+// Architecture tabs
+function showPanel(idx) {
+  document.querySelectorAll('.arch-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.arch-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
+// Scroll reveal
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .stagger').forEach(el => io.observe(el));
+
+// Animate bars on scroll
+const barIo = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.bar-fill').forEach(f => {
+        f.style.width = f.dataset.w + '%';
+      });
+      barIo.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+const dp = document.querySelector('.disease-panel');
+if (dp) barIo.observe(dp);
+
+// Sensor value animation (subtle count-up)
+document.addEventListener('DOMContentLoaded', () => {
+  // Scroll active nav link
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav ul a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 200) current = s.id; });
+    navLinks.forEach(a => a.style.color = a.getAttribute('href') === '#' + current ? 'var(--green-mid)' : '');
+  });
+});
+</script>
+
+</body>
+</html>
